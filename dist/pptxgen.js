@@ -2459,7 +2459,7 @@ var PptxGenJS = function(){
 
 		// LAST:
 		if (opts.debug) { console.log('arrObjSlides count = '+arrObjSlides.length); console.log(arrObjSlides); }
-		return arrObjSlides;
+		return { slides: arrObjSlides, finalTableH: parseFloat((emuTabCurrH/EMU).toFixed(1)) };
 	}
 
 	/**
@@ -4937,6 +4937,13 @@ var PptxGenJS = function(){
 	};
 
 	/**
+	 * Gets the Presentation's slides
+	 */
+	this.getSlides = function getSlides() {
+		return gObjPptx.slides;
+	};
+
+	/**
 	 * Set Right-to-Left (RTL) mode for users whose language requires this setting
 	 */
 	this.setRTL = function setRTL(inBool) {
@@ -5356,7 +5363,8 @@ var PptxGenJS = function(){
 			}
 			else {
 				// Loop over rows and create 1-N tables as needed (ISSUE#21)
-				getSlidesForTableRows(arrRows,opt).forEach(function(arrRows,idx){
+				var slidesForTableRows = getSlidesForTableRows(arrRows,opt);
+				slidesForTableRows.slides.forEach(function (arrRows,idx) {
 					// A: Create new Slide when needed, otherwise, use existing (NOTE: More than 1 table can be on a Slide, so we will go up AND down the Slide chain)
 					var currSlide = ( !gObjPptx.slides[slideNum+idx] ? addNewSlide(inMasterName) : gObjPptx.slides[slideNum+idx].slide );
 
@@ -5367,10 +5375,11 @@ var PptxGenJS = function(){
 					opt.autoPage = false;
 					currSlide.addTable(arrRows, jQuery.extend(true,{},opt));
 				});
+				return { slide: gObjPptx.slides[gObjPptx.slides.length - 1].slide, finalTableH: slidesForTableRows.finalTableH };
 			}
 
 			// LAST: Return this Slide
-			return this;
+			return { slide: this };
 		};
 
 		slideObj.addText = function( text, options ) {
@@ -5563,8 +5572,8 @@ var PptxGenJS = function(){
 		opts.arrObjTabHeadRows = arrObjTabHeadRows || '';
 		opts.colW = arrColW;
 
-		getSlidesForTableRows(arrObjTabHeadRows.concat(arrObjTabBodyRows).concat(arrObjTabFootRows), opts)
-		.forEach(function(arrTabRows,idx){
+		var slidesForTableRows = getSlidesForTableRows(arrObjTabHeadRows.concat(arrObjTabBodyRows).concat(arrObjTabFootRows), opts);
+		slidesForTableRows.slides.forEach(function(arrTabRows,idx){
 			// A: Create new Slide
 			var newSlide = ( opts.master ? api.addNewSlide(opts.master) : api.addNewSlide() );
 
@@ -5593,13 +5602,12 @@ function getUuid(uuidFormat) {
 		return v.toString(16);
 	});
 }
-
 // NodeJS support
 if ( NODEJS ) {
-	var jQuery = null;
-	var fs = null;
-	var JSZip = null;
-	var sizeOf = null;
+	// var jQuery = null;
+	// var fs = null;
+	// var JSZip = null;
+	// var sizeOf = null;
 
 	// A: jQuery dependency
 	try {
