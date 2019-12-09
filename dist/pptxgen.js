@@ -5363,10 +5363,11 @@ var PptxGenJS = function(){
 			}
 			else {
 				// Loop over rows and create 1-N tables as needed (ISSUE#21)
+				var currSlide;
 				var slidesForTableRows = getSlidesForTableRows(arrRows,opt);
 				slidesForTableRows.slides.forEach(function (arrRows,idx) {
 					// A: Create new Slide when needed, otherwise, use existing (NOTE: More than 1 table can be on a Slide, so we will go up AND down the Slide chain)
-					var currSlide = ( !gObjPptx.slides[slideNum+idx] ? addNewSlide(inMasterName) : gObjPptx.slides[slideNum+idx].slide );
+					currSlide = ( !gObjPptx.slides[slideNum+idx] ? addNewSlide(inMasterName) : gObjPptx.slides[slideNum+idx].slide );
 
 					// B: Reset opt.y to `option`/`margin` after first Slide (ISSUE#43, ISSUE#47, ISSUE#48)
 					if ( idx > 0 ) opt.y = inch2Emu( opt.newPageStartY || arrTableMargin[0] );
@@ -5375,7 +5376,7 @@ var PptxGenJS = function(){
 					opt.autoPage = false;
 					currSlide.addTable(arrRows, jQuery.extend(true,{},opt));
 				});
-				return { slide: gObjPptx.slides[gObjPptx.slides.length - 1].slide, finalTableH: slidesForTableRows.finalTableH };
+				return { slide: currSlide, finalTableH: slidesForTableRows.finalTableH };
 			}
 
 			// LAST: Return this Slide
