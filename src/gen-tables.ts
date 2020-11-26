@@ -64,6 +64,7 @@ export function getSlidesForTableRows(tableRows: TableCell[][] = [], tabOpts: Ta
 		tableRowSlides = [
 			{
 				rows: [] as TableRow[],
+				finalTableH: 0
 			},
 		]
 
@@ -207,7 +208,7 @@ export function getSlidesForTableRows(tableRows: TableCell[][] = [], tabOpts: Ta
 				_lineHeight: inch2Emu(
 					((cell.options && cell.options.fontSize ? cell.options.fontSize : tabOpts.fontSize ? tabOpts.fontSize : DEF_FONT_SIZE) *
 						(LINEH_MODIFIER + (tabOpts.autoPageLineWeight ? tabOpts.autoPageLineWeight : 0))) /
-						100
+					100
 				),
 				text: '',
 				options: cell.options,
@@ -251,12 +252,13 @@ export function getSlidesForTableRows(tableRows: TableCell[][] = [], tabOpts: Ta
 				if (tabOpts.verbose)
 					console.log(
 						`** NEW SLIDE CREATED *****************************************` +
-							` (why?): ${(emuTabCurrH / EMU).toFixed(2)}+${(maxLineHeight / EMU).toFixed(2)} > ${emuSlideTabH / EMU}`
+						` (why?): ${(emuTabCurrH / EMU).toFixed(2)}+${(maxLineHeight / EMU).toFixed(2)} > ${emuSlideTabH / EMU}`
 					)
 
 				// 1: Add a new slide
 				tableRowSlides.push({
 					rows: [] as TableRow[],
+					finalTableH: 0
 				})
 
 				// 2: Reset current table height for new Slide
@@ -335,8 +337,9 @@ export function getSlidesForTableRows(tableRows: TableCell[][] = [], tabOpts: Ta
 		//console.log(JSON.stringify(tableRowSlides,null,2))
 		console.log(`|================================================|\n\n`)
 	}
+	tableRowSlides[tableRowSlides.length - 1].finalTableH = parseFloat((emuTabCurrH / EMU).toFixed(1));
 
-	return tableRowSlides
+	return tableRowSlides;
 }
 
 /**
@@ -440,7 +443,7 @@ export function genTableToSlides(pptx: PptxGenJS, tabEleId: string, options: Tab
 					align: null,
 					bold:
 						window.getComputedStyle(cell).getPropertyValue('font-weight') === 'bold' ||
-						Number(window.getComputedStyle(cell).getPropertyValue('font-weight')) >= 500
+							Number(window.getComputedStyle(cell).getPropertyValue('font-weight')) >= 500
 							? true
 							: false,
 					border: null,

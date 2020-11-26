@@ -867,6 +867,7 @@ var PptxGenJS = (function (JSZip) {
 	    var arrInchMargins = DEF_SLIDE_MARGIN_IN, emuTabCurrH = 0, emuSlideTabW = EMU * 1, emuSlideTabH = EMU * 1, numCols = 0, tableRowSlides = [
 	        {
 	            rows: [],
+	            finalTableH: 0
 	        },
 	    ];
 	    if (tabOpts.verbose) {
@@ -1054,6 +1055,7 @@ var PptxGenJS = (function (JSZip) {
 	                // 1: Add a new slide
 	                tableRowSlides.push({
 	                    rows: [],
+	                    finalTableH: 0
 	                });
 	                // 2: Reset current table height for new Slide
 	                emuTabCurrH = 0; // This row's emuRowH w/b added below
@@ -1129,6 +1131,7 @@ var PptxGenJS = (function (JSZip) {
 	        //console.log(JSON.stringify(tableRowSlides,null,2))
 	        console.log("|================================================|\n\n");
 	    }
+	    tableRowSlides[tableRowSlides.length - 1].finalTableH = parseFloat((emuTabCurrH / EMU).toFixed(1));
 	    return tableRowSlides;
 	}
 	/**
@@ -2232,7 +2235,28 @@ var PptxGenJS = (function (JSZip) {
 	        </a:p>
 	    */
 	    // Return paragraph with text run
-	    return textObj.text ? "<a:r>" + genXmlTextRunProperties(textObj.options, false) + "<a:t>" + encodeXmlEntities(textObj.text) + "</a:t></a:r>" : '';
+	    if (textObj.text) {
+	        if (textObj.text.indexOf('✓') > -1) {
+	            var strs = textObj.text.split('✓');
+	            if (strs.length) {
+	                var finalText = '';
+	                // If first char is checkmark, skip
+	                var i = strs[0] ? 0 : 1;
+	                var greenText = Object.assign({}, textObj.options);
+	                greenText.color = '56b418';
+	                greenText.bold = true;
+	                for (i; i < strs.length; i++) {
+	                    finalText += "<a:r>" + genXmlTextRunProperties(greenText, false) + "<a:t>" + encodeXmlEntities('✓') + "</a:t></a:r>";
+	                    finalText += "<a:r>" + genXmlTextRunProperties(textObj.options, false) + "<a:t>" + encodeXmlEntities(strs[i]) + "</a:t></a:r>";
+	                }
+	                return finalText;
+	            }
+	        }
+	        else {
+	            return "<a:r>" + genXmlTextRunProperties(textObj.options, false) + "<a:t>" + encodeXmlEntities(textObj.text) + "</a:t></a:r>";
+	        }
+	    }
+	    return '';
 	}
 	/**
 	 * Builds `<a:bodyPr></a:bodyPr>` tag for "genXmlTextBody()"
@@ -3777,6 +3801,7 @@ var PptxGenJS = (function (JSZip) {
 	            // C: Add this table to new Slide
 	            {
 	                var newSlide = getSlide(target._slideNum + idx);
+	                target.finalTableH = slide.finalTableH;
 	                opt.autoPage = false;
 	                // Create hyperlink rels (IMPORTANT: Wait until table has been shredded across Slides or all rels will end-up on Slide 1!)
 	                createHyperlinkRels(newSlide, slide.rows);

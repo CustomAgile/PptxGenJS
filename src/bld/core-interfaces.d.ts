@@ -717,6 +717,7 @@ export interface TableCell {
 }
 export interface TableRowSlide {
     rows: TableRow[];
+    finalTableH?: number;
 }
 export declare type TableRow = TableCell[];
 export interface TextGlowProps {
@@ -1280,6 +1281,7 @@ export interface PresSlide extends SlideBaseProps {
      * Slide number options
      */
     slideNumber?: SlideNumberProps;
+    finalTableH?: number;
 }
 export interface AddSlideProps {
     masterName?: string;

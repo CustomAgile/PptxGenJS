@@ -262,80 +262,80 @@ export interface TextBaseProps {
 	 * @default false
 	 */
 	bullet?:
-		| boolean
-		| {
-				/**
-				 * Bullet type
-				 * @default bullet
-				 */
-				type?: 'bullet' | 'number'
-				/**
-				 * Bullet character code (unicode)
-				 * @since v3.3.0
-				 * @example '25BA' // 'BLACK RIGHT-POINTING POINTER' (U+25BA)
-				 */
-				characterCode?: string
-				/**
-				 * Indentation (space between bullet and text) (points)
-				 * @since v3.3.0
-				 * @default 27 // DEF_BULLET_MARGIN
-				 * @example 10 // Indents text 10 points from bullet
-				 */
-				indent?: number
-				/**
-				 * Number type
-				 * @since v3.3.0
-				 * @example 'romanLcParenR' // roman numerals lower-case with paranthesis right
-				 */
-				numberType?:
-					| 'alphaLcParenBoth'
-					| 'alphaLcParenR'
-					| 'alphaLcPeriod'
-					| 'alphaUcParenBoth'
-					| 'alphaUcParenR'
-					| 'alphaUcPeriod'
-					| 'arabicParenBoth'
-					| 'arabicParenR'
-					| 'arabicPeriod'
-					| 'arabicPlain'
-					| 'romanLcParenBoth'
-					| 'romanLcParenR'
-					| 'romanLcPeriod'
-					| 'romanUcParenBoth'
-					| 'romanUcParenR'
-					| 'romanUcPeriod'
-				/**
-				 * Number bullets start at
-				 * @since v3.3.0
-				 * @default 1
-				 * @example 10 // numbered bullets start with 10
-				 */
-				numberStartAt?: number
+	| boolean
+	| {
+		/**
+		 * Bullet type
+		 * @default bullet
+		 */
+		type?: 'bullet' | 'number'
+		/**
+		 * Bullet character code (unicode)
+		 * @since v3.3.0
+		 * @example '25BA' // 'BLACK RIGHT-POINTING POINTER' (U+25BA)
+		 */
+		characterCode?: string
+		/**
+		 * Indentation (space between bullet and text) (points)
+		 * @since v3.3.0
+		 * @default 27 // DEF_BULLET_MARGIN
+		 * @example 10 // Indents text 10 points from bullet
+		 */
+		indent?: number
+		/**
+		 * Number type
+		 * @since v3.3.0
+		 * @example 'romanLcParenR' // roman numerals lower-case with paranthesis right
+		 */
+		numberType?:
+		| 'alphaLcParenBoth'
+		| 'alphaLcParenR'
+		| 'alphaLcPeriod'
+		| 'alphaUcParenBoth'
+		| 'alphaUcParenR'
+		| 'alphaUcPeriod'
+		| 'arabicParenBoth'
+		| 'arabicParenR'
+		| 'arabicPeriod'
+		| 'arabicPlain'
+		| 'romanLcParenBoth'
+		| 'romanLcParenR'
+		| 'romanLcPeriod'
+		| 'romanUcParenBoth'
+		| 'romanUcParenR'
+		| 'romanUcPeriod'
+		/**
+		 * Number bullets start at
+		 * @since v3.3.0
+		 * @default 1
+		 * @example 10 // numbered bullets start with 10
+		 */
+		numberStartAt?: number
 
-				// DEPRECATED
+		// DEPRECATED
 
-				/**
-				 * Bullet code (unicode)
-				 * @deprecated v3.3.0 - use `characterCode`
-				 */
-				code?: string
-				/**
-				 * Margin between bullet and text
-				 * @since v3.2.1
-				 * @deplrecated v3.3.0 - use `indent`
-				 */
-				marginPt?: number
-				/**
-				 * Number to start with (only applies to type:number)
-				 * @deprecated v3.3.0 - use `numberStartAt`
-				 */
-				startAt?: number
-				/**
-				 * Number type
-				 * @deprecated v3.3.0 - use `numberType`
-				 */
-				style?: string
-		  }
+		/**
+		 * Bullet code (unicode)
+		 * @deprecated v3.3.0 - use `characterCode`
+		 */
+		code?: string
+		/**
+		 * Margin between bullet and text
+		 * @since v3.2.1
+		 * @deplrecated v3.3.0 - use `indent`
+		 */
+		marginPt?: number
+		/**
+		 * Number to start with (only applies to type:number)
+		 * @deprecated v3.3.0 - use `numberStartAt`
+		 */
+		startAt?: number
+		/**
+		 * Number type
+		 * @deprecated v3.3.0 - use `numberType`
+		 */
+		style?: string
+	}
 	/**
 	 * Text color
 	 * - `HexColor` or `ThemeColor`
@@ -754,7 +754,8 @@ export interface TableCell {
 	options?: TableCellProps
 }
 export interface TableRowSlide {
-	rows: TableRow[]
+	rows: TableRow[],
+	finalTableH?: number
 }
 export type TableRow = TableCell[]
 
@@ -1156,20 +1157,20 @@ export interface IChartPropsTitle {
 }
 export interface IChartOpts
 	extends IChartPropsAxisCat,
-		IChartPropsAxisSer,
-		IChartPropsAxisVal,
-		IChartPropsBase,
-		IChartPropsChartBar,
-		IChartPropsChartDoughnut,
-		IChartPropsChartLine,
-		IChartPropsChartPie,
-		IChartPropsChartRadar,
-		IChartPropsDataLabel,
-		IChartPropsDataTable,
-		IChartPropsLegend,
-		IChartPropsTitle,
-		OptsChartGridLine,
-		PositionProps {}
+	IChartPropsAxisSer,
+	IChartPropsAxisVal,
+	IChartPropsBase,
+	IChartPropsChartBar,
+	IChartPropsChartDoughnut,
+	IChartPropsChartLine,
+	IChartPropsChartPie,
+	IChartPropsChartRadar,
+	IChartPropsDataLabel,
+	IChartPropsDataTable,
+	IChartPropsLegend,
+	IChartPropsTitle,
+	OptsChartGridLine,
+	PositionProps { }
 export interface IChartOptsLib extends IChartOpts {
 	_type?: CHART_NAME | IChartMulti[] // TODO: v3.4.0 - move to `IChartOpts`, remove `IChartOptsLib`
 }
@@ -1255,7 +1256,7 @@ export interface PresLayout {
 	width: number
 	height: number
 }
-export interface SlideNumberProps extends PositionProps, TextBaseProps {}
+export interface SlideNumberProps extends PositionProps, TextBaseProps { }
 export interface SlideMasterProps {
 	/**
 	 * Unique name for this master
@@ -1344,6 +1345,8 @@ export interface PresSlide extends SlideBaseProps {
 	 * Slide number options
 	 */
 	slideNumber?: SlideNumberProps
+
+	finalTableH?: number
 }
 export interface AddSlideProps {
 	masterName?: string // TODO: 20200528: rename to "masterTitle" (createMaster uses `title` so lets be consistent)
