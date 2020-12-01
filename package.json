@@ -1,12 +1,15 @@
 {
-  "name": "pptxgenjs",
+  "name": "@customagile/pptxgenjs",
   "version": "3.4.1-beta",
   "author": {
-    "name": "Brent Ely",
-    "url": "https://github.com/gitbrent/"
+    "name": "Custom Agile",
+    "url": "https://github.com/CustomAgile/"
   },
   "description": "Create JavaScript PowerPoint Presentations",
-  "homepage": "https://gitbrent.github.io/PptxGenJS/",
+  "homepage": "https://github.com/CustomAgile/PptxGenJS/",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "license": "MIT",
   "main": "dist/pptxgen.cjs.js",
   "module": "dist/pptxgen.es.js",
@@ -52,7 +55,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gitbrent/PptxGenJS.git"
+    "url": "git+https://github.com/CustomAgile/PptxGenJS.git"
   },
   "keywords": [
     "javascript-create-powerpoint",
