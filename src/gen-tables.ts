@@ -23,7 +23,7 @@ function parseTextToLines(cell: TableCell, colWidth: number): string[] {
 	if (cell.text && cell.text.toString().trim().length === 0) return [' ']
 
 	// B: Remove leading/trailing spaces
-	let inStr = (cell.text || '').toString().trim()
+	let inStr = (cell.text || '').toString().trimEnd()
 
 	// C: Build line array
 	inStr.split('\n').forEach(line => {
@@ -37,12 +37,19 @@ function parseTextToLines(cell: TableCell, colWidth: number): string[] {
 		})
 
 		// All words for this line have been exhausted, flush buffer to new line, clear line var
-		if (strCurrLine) arrLines.push(strCurrLine.trim() + CRLF)
+		// AM: Avoid trimming the start for epics and features as we need to preserve indents
+		if (strCurrLine) arrLines.push(strCurrLine.trimEnd() + CRLF)
 		strCurrLine = ''
 	})
 
+	let lastEntry = arrLines[arrLines.length - 1]
+
 	// D: Remove trailing linebreak
-	arrLines[arrLines.length - 1] = arrLines[arrLines.length - 1].trim()
+	if (lastEntry.indexOf('✓') === -1 && lastEntry.indexOf('☐') === -1) {
+		arrLines[arrLines.length - 1] = lastEntry.trim()
+	} else {
+		arrLines[arrLines.length - 1] = lastEntry.trimEnd()
+	}
 
 	return arrLines
 }
@@ -64,7 +71,7 @@ export function getSlidesForTableRows(tableRows: TableCell[][] = [], tabOpts: Ta
 		tableRowSlides = [
 			{
 				rows: [] as TableRow[],
-				finalTableH: 0
+				finalTableH: 0,
 			},
 		]
 
@@ -208,7 +215,7 @@ export function getSlidesForTableRows(tableRows: TableCell[][] = [], tabOpts: Ta
 				_lineHeight: inch2Emu(
 					((cell.options && cell.options.fontSize ? cell.options.fontSize : tabOpts.fontSize ? tabOpts.fontSize : DEF_FONT_SIZE) *
 						(LINEH_MODIFIER + (tabOpts.autoPageLineWeight ? tabOpts.autoPageLineWeight : 0))) /
-					100
+						100
 				),
 				text: '',
 				options: cell.options,
@@ -252,13 +259,13 @@ export function getSlidesForTableRows(tableRows: TableCell[][] = [], tabOpts: Ta
 				if (tabOpts.verbose)
 					console.log(
 						`** NEW SLIDE CREATED *****************************************` +
-						` (why?): ${(emuTabCurrH / EMU).toFixed(2)}+${(maxLineHeight / EMU).toFixed(2)} > ${emuSlideTabH / EMU}`
+							` (why?): ${(emuTabCurrH / EMU).toFixed(2)}+${(maxLineHeight / EMU).toFixed(2)} > ${emuSlideTabH / EMU}`
 					)
 
 				// 1: Add a new slide
 				tableRowSlides.push({
 					rows: [] as TableRow[],
-					finalTableH: 0
+					finalTableH: 0,
 				})
 
 				// 2: Reset current table height for new Slide
@@ -337,9 +344,9 @@ export function getSlidesForTableRows(tableRows: TableCell[][] = [], tabOpts: Ta
 		//console.log(JSON.stringify(tableRowSlides,null,2))
 		console.log(`|================================================|\n\n`)
 	}
-	tableRowSlides[tableRowSlides.length - 1].finalTableH = parseFloat((emuTabCurrH / EMU).toFixed(1));
+	tableRowSlides[tableRowSlides.length - 1].finalTableH = parseFloat((emuTabCurrH / EMU).toFixed(1))
 
-	return tableRowSlides;
+	return tableRowSlides
 }
 
 /**
@@ -443,7 +450,7 @@ export function genTableToSlides(pptx: PptxGenJS, tabEleId: string, options: Tab
 					align: null,
 					bold:
 						window.getComputedStyle(cell).getPropertyValue('font-weight') === 'bold' ||
-							Number(window.getComputedStyle(cell).getPropertyValue('font-weight')) >= 500
+						Number(window.getComputedStyle(cell).getPropertyValue('font-weight')) >= 500
 							? true
 							: false,
 					border: null,

@@ -301,7 +301,7 @@ function slideObjectToXml(slide: PresSlide | SlideLayout): string {
 					else if (slideItemObj.options.cy || slideItemObj.options.h)
 						intRowH = Math.round(
 							(slideItemObj.options.h ? inch2Emu(slideItemObj.options.h) : typeof slideItemObj.options.cy === 'number' ? slideItemObj.options.cy : 1) /
-							arrTabRows.length
+								arrTabRows.length
 						)
 
 					// B: Start row
@@ -318,23 +318,23 @@ function slideObjectToXml(slide: PresSlide | SlideLayout): string {
 						let cellOpts = cell.options || ({} as TableCell['options'])
 						cell.options = cellOpts
 
-							// B: Inherit some options from table when cell options dont exist
-							// @see: http://officeopenxml.com/drwTableCellProperties-alignment.php
-							;['align', 'bold', 'border', 'color', 'fill', 'fontFace', 'fontSize', 'margin', 'underline', 'valign'].forEach(name => {
-								if (objTabOpts[name] && !cellOpts[name] && cellOpts[name] !== 0) cellOpts[name] = objTabOpts[name]
-							})
+						// B: Inherit some options from table when cell options dont exist
+						// @see: http://officeopenxml.com/drwTableCellProperties-alignment.php
+						;['align', 'bold', 'border', 'color', 'fill', 'fontFace', 'fontSize', 'margin', 'underline', 'valign'].forEach(name => {
+							if (objTabOpts[name] && !cellOpts[name] && cellOpts[name] !== 0) cellOpts[name] = objTabOpts[name]
+						})
 
 						let cellValign = cellOpts.valign
 							? ' anchor="' +
-							cellOpts.valign
-								.replace(/^c$/i, 'ctr')
-								.replace(/^m$/i, 'ctr')
-								.replace('center', 'ctr')
-								.replace('middle', 'ctr')
-								.replace('top', 't')
-								.replace('btm', 'b')
-								.replace('bottom', 'b') +
-							'"'
+							  cellOpts.valign
+									.replace(/^c$/i, 'ctr')
+									.replace(/^m$/i, 'ctr')
+									.replace('center', 'ctr')
+									.replace('middle', 'ctr')
+									.replace('top', 't')
+									.replace('btm', 'b')
+									.replace('bottom', 'b') +
+							  '"'
 							: ''
 						let cellColspan = cellOpts.colspan ? ` gridSpan="${cellOpts.colspan}"` : ''
 						let cellRowspan = cellOpts.rowspan ? ` rowSpan="${cellOpts.rowspan}"` : ''
@@ -342,8 +342,8 @@ function slideObjectToXml(slide: PresSlide | SlideLayout): string {
 							cell._optImp && cell._optImp.fill && cell._optImp.fill.color
 								? cell._optImp.fill.color
 								: cell._optImp && cell._optImp.fill && typeof cell._optImp.fill === 'string'
-									? cell._optImp.fill
-									: ''
+								? cell._optImp.fill
+								: ''
 						fillColor =
 							fillColor || (cellOpts.fill && cellOpts.fill.color) ? cellOpts.fill.color : cellOpts.fill && typeof cellOpts.fill === 'string' ? cellOpts.fill : ''
 						let cellFill = fillColor ? `<a:solidFill>${createColorElement(fillColor)}</a:solidFill>` : ''
@@ -379,8 +379,9 @@ function slideObjectToXml(slide: PresSlide | SlideLayout): string {
 								if (cellOpts.border[obj.idx].type !== 'none') {
 									strXml += `<a:${obj.name} w="${valToPts(cellOpts.border[obj.idx].pt)}" cap="flat" cmpd="sng" algn="ctr">`
 									strXml += `<a:solidFill>${createColorElement(cellOpts.border[obj.idx].color)}</a:solidFill>`
-									strXml += `<a:prstDash val="${cellOpts.border[obj.idx].type === 'dash' ? 'sysDash' : 'solid'
-										}"/><a:round/><a:headEnd type="none" w="med" len="med"/><a:tailEnd type="none" w="med" len="med"/>`
+									strXml += `<a:prstDash val="${
+										cellOpts.border[obj.idx].type === 'dash' ? 'sysDash' : 'solid'
+									}"/><a:round/><a:headEnd type="none" w="med" len="med"/><a:tailEnd type="none" w="med" len="med"/>`
 									strXml += `</a:${obj.name}>`
 								} else {
 									strXml += `<a:${obj.name} w="0" cap="flat" cmpd="sng" algn="ctr"><a:noFill/></a:${obj.name}>`
@@ -766,41 +767,41 @@ function slideObjectRelationsToXml(slide: PresSlide | SlideLayout, defaultRels: 
 				'<Relationship Id="rId' + rel.rId + '" Target="' + rel.Target + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide"/>'
 		}
 	})
-		; (slide._relsChart || []).forEach((rel: ISlideRelChart) => {
-			lastRid = Math.max(lastRid, rel.rId)
-			strXml += '<Relationship Id="rId' + rel.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart" Target="' + rel.Target + '"/>'
-		})
-		; (slide._relsMedia || []).forEach((rel: ISlideRelMedia) => {
-			lastRid = Math.max(lastRid, rel.rId)
-			if (rel.type.toLowerCase().indexOf('image') > -1) {
-				strXml += '<Relationship Id="rId' + rel.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="' + rel.Target + '"/>'
-			} else if (rel.type.toLowerCase().indexOf('audio') > -1) {
-				// As media has *TWO* rel entries per item, check for first one, if found add second rel with alt style
-				if (strXml.indexOf(' Target="' + rel.Target + '"') > -1)
-					strXml += '<Relationship Id="rId' + rel.rId + '" Type="http://schemas.microsoft.com/office/2007/relationships/media" Target="' + rel.Target + '"/>'
-				else
-					strXml +=
-						'<Relationship Id="rId' + rel.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/audio" Target="' + rel.Target + '"/>'
-			} else if (rel.type.toLowerCase().indexOf('video') > -1) {
-				// As media has *TWO* rel entries per item, check for first one, if found add second rel with alt style
-				if (strXml.indexOf(' Target="' + rel.Target + '"') > -1)
-					strXml += '<Relationship Id="rId' + rel.rId + '" Type="http://schemas.microsoft.com/office/2007/relationships/media" Target="' + rel.Target + '"/>'
-				else
-					strXml +=
-						'<Relationship Id="rId' + rel.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/video" Target="' + rel.Target + '"/>'
-			} else if (rel.type.toLowerCase().indexOf('online') > -1) {
-				// As media has *TWO* rel entries per item, check for first one, if found add second rel with alt style
-				if (strXml.indexOf(' Target="' + rel.Target + '"') > -1)
-					strXml += '<Relationship Id="rId' + rel.rId + '" Type="http://schemas.microsoft.com/office/2007/relationships/image" Target="' + rel.Target + '"/>'
-				else
-					strXml +=
-						'<Relationship Id="rId' +
-						rel.rId +
-						'" Target="' +
-						rel.Target +
-						'" TargetMode="External" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/video"/>'
-			}
-		})
+	;(slide._relsChart || []).forEach((rel: ISlideRelChart) => {
+		lastRid = Math.max(lastRid, rel.rId)
+		strXml += '<Relationship Id="rId' + rel.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart" Target="' + rel.Target + '"/>'
+	})
+	;(slide._relsMedia || []).forEach((rel: ISlideRelMedia) => {
+		lastRid = Math.max(lastRid, rel.rId)
+		if (rel.type.toLowerCase().indexOf('image') > -1) {
+			strXml += '<Relationship Id="rId' + rel.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="' + rel.Target + '"/>'
+		} else if (rel.type.toLowerCase().indexOf('audio') > -1) {
+			// As media has *TWO* rel entries per item, check for first one, if found add second rel with alt style
+			if (strXml.indexOf(' Target="' + rel.Target + '"') > -1)
+				strXml += '<Relationship Id="rId' + rel.rId + '" Type="http://schemas.microsoft.com/office/2007/relationships/media" Target="' + rel.Target + '"/>'
+			else
+				strXml +=
+					'<Relationship Id="rId' + rel.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/audio" Target="' + rel.Target + '"/>'
+		} else if (rel.type.toLowerCase().indexOf('video') > -1) {
+			// As media has *TWO* rel entries per item, check for first one, if found add second rel with alt style
+			if (strXml.indexOf(' Target="' + rel.Target + '"') > -1)
+				strXml += '<Relationship Id="rId' + rel.rId + '" Type="http://schemas.microsoft.com/office/2007/relationships/media" Target="' + rel.Target + '"/>'
+			else
+				strXml +=
+					'<Relationship Id="rId' + rel.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/video" Target="' + rel.Target + '"/>'
+		} else if (rel.type.toLowerCase().indexOf('online') > -1) {
+			// As media has *TWO* rel entries per item, check for first one, if found add second rel with alt style
+			if (strXml.indexOf(' Target="' + rel.Target + '"') > -1)
+				strXml += '<Relationship Id="rId' + rel.rId + '" Type="http://schemas.microsoft.com/office/2007/relationships/image" Target="' + rel.Target + '"/>'
+			else
+				strXml +=
+					'<Relationship Id="rId' +
+					rel.rId +
+					'" Target="' +
+					rel.Target +
+					'" TargetMode="External" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/video"/>'
+		}
+	})
 
 	// STEP 2: Add default rels
 	defaultRels.forEach((rel, idx) => {
@@ -872,10 +873,12 @@ function genXmlParagraphProperties(textObj: ISlideObject | TextProps, isDefault:
 
 			if (textObj.options.bullet.type) {
 				if (textObj.options.bullet.type.toString().toLowerCase() === 'number') {
-					paragraphPropXml += ` marL="${textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
-						}" indent="-${bulletMarL}"`
-					strXmlBullet = `<a:buSzPct val="100000"/><a:buFont typeface="+mj-lt"/><a:buAutoNum type="${textObj.options.bullet.style || 'arabicPeriod'}" startAt="${textObj.options.bullet.numberStartAt || textObj.options.bullet.startAt || '1'
-						}"/>`
+					paragraphPropXml += ` marL="${
+						textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
+					}" indent="-${bulletMarL}"`
+					strXmlBullet = `<a:buSzPct val="100000"/><a:buFont typeface="+mj-lt"/><a:buAutoNum type="${textObj.options.bullet.style || 'arabicPeriod'}" startAt="${
+						textObj.options.bullet.numberStartAt || textObj.options.bullet.startAt || '1'
+					}"/>`
 				}
 			} else if (textObj.options.bullet.characterCode) {
 				let bulletCode = `&#x${textObj.options.bullet.characterCode};`
@@ -886,8 +889,9 @@ function genXmlParagraphProperties(textObj: ISlideObject | TextProps, isDefault:
 					bulletCode = BULLET_TYPES['DEFAULT']
 				}
 
-				paragraphPropXml += ` marL="${textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
-					}" indent="-${bulletMarL}"`
+				paragraphPropXml += ` marL="${
+					textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
+				}" indent="-${bulletMarL}"`
 				strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>'
 			} else if (textObj.options.bullet.code) {
 				// @deprecated `bullet.code` v3.3.0
@@ -899,17 +903,20 @@ function genXmlParagraphProperties(textObj: ISlideObject | TextProps, isDefault:
 					bulletCode = BULLET_TYPES['DEFAULT']
 				}
 
-				paragraphPropXml += ` marL="${textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
-					}" indent="-${bulletMarL}"`
+				paragraphPropXml += ` marL="${
+					textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
+				}" indent="-${bulletMarL}"`
 				strXmlBullet = '<a:buSzPct val="100000"/><a:buChar char="' + bulletCode + '"/>'
 			} else {
-				paragraphPropXml += ` marL="${textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
-					}" indent="-${bulletMarL}"`
+				paragraphPropXml += ` marL="${
+					textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
+				}" indent="-${bulletMarL}"`
 				strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES['DEFAULT']}"/>`
 			}
 		} else if (textObj.options.bullet === true) {
-			paragraphPropXml += ` marL="${textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
-				}" indent="-${bulletMarL}"`
+			paragraphPropXml += ` marL="${
+				textObj.options.indentLevel && textObj.options.indentLevel > 0 ? bulletMarL + bulletMarL * textObj.options.indentLevel : bulletMarL
+			}" indent="-${bulletMarL}"`
 			strXmlBullet = `<a:buSzPct val="100000"/><a:buChar char="${BULLET_TYPES['DEFAULT']}"/>`
 		} else if (textObj.options.bullet === false) {
 			// We only add this when the user explicitely asks for no bullet, otherwise, it can override the master defaults!
@@ -967,11 +974,13 @@ function genXmlTextRunProperties(opts: ObjectOptions | TextPropsOptions, isDefau
 		else if (opts.hyperlink.url) {
 			// TODO: (20170410): FUTURE-FEATURE: color (link is always blue in Keynote and PPT online, so usual text run above isnt honored for links..?)
 			//runProps += '<a:uFill>'+ genXmlColorSelection('0000FF') +'</a:uFill>'; // Breaks PPT2010! (Issue#74)
-			runProps += `<a:hlinkClick r:id="rId${opts.hyperlink._rId}" invalidUrl="" action="" tgtFrame="" tooltip="${opts.hyperlink.tooltip ? encodeXmlEntities(opts.hyperlink.tooltip) : ''
-				}" history="1" highlightClick="0" endSnd="0"/>`
+			runProps += `<a:hlinkClick r:id="rId${opts.hyperlink._rId}" invalidUrl="" action="" tgtFrame="" tooltip="${
+				opts.hyperlink.tooltip ? encodeXmlEntities(opts.hyperlink.tooltip) : ''
+			}" history="1" highlightClick="0" endSnd="0"/>`
 		} else if (opts.hyperlink.slide) {
-			runProps += `<a:hlinkClick r:id="rId${opts.hyperlink._rId}" action="ppaction://hlinksldjump" tooltip="${opts.hyperlink.tooltip ? encodeXmlEntities(opts.hyperlink.tooltip) : ''
-				}"/>`
+			runProps += `<a:hlinkClick r:id="rId${opts.hyperlink._rId}" action="ppaction://hlinksldjump" tooltip="${
+				opts.hyperlink.tooltip ? encodeXmlEntities(opts.hyperlink.tooltip) : ''
+			}"/>`
 		}
 	}
 
@@ -1017,25 +1026,40 @@ function genXmlTextRun(textObj: TextProps): string {
 
 	// Return paragraph with text run
 	if (textObj.text) {
-		if (textObj.text.indexOf('✓') > -1) {
-			let strs = textObj.text.split('✓');
-			if (strs.length) {
-				var finalText = '';
-				// If first char is checkmark, skip
-				var i = strs[0] ? 0 : 1;
-				var greenText = Object.assign({}, textObj.options);
-				greenText.color = '56b418';
-				greenText.bold = true;
+		let textOptions = Object.assign({}, textObj.options)
 
-				for (i; i < strs.length; i++) {
-					finalText += "<a:r>" + genXmlTextRunProperties(greenText, false) + "<a:t>" + encodeXmlEntities('✓') + "</a:t></a:r>";
-					finalText += "<a:r>" + genXmlTextRunProperties(textObj.options, false) + "<a:t>" + encodeXmlEntities(strs[i]) + "</a:t></a:r>";
-				}
-				return finalText;
-			}
+		// Make Epic rows bold
+		if (/E\d+:/.test(textObj.text) && (textObj.text.indexOf('✓') > -1 || textObj.text.indexOf('☐') > -1)) {
+			textOptions.bold = true
 		}
-		else {
-			return `<a:r>${genXmlTextRunProperties(textObj.options, false)}<a:t>${encodeXmlEntities(textObj.text)}</a:t></a:r>`;
+
+		// Checkmarks need to be green and bold, so iterate through the string and add extra styles
+		// when a checkmark is encountered
+		// We need to do this manually because cell level formatting isn't compatible with autopaging
+		if (textObj.text.indexOf('✓') > -1) {
+			let greenText = Object.assign({}, textObj.options)
+			greenText.color = '56b418'
+			greenText.bold = true
+
+			let finalText = `<a:r>${genXmlTextRunProperties(textOptions, false)}<a:t>`
+			let currentText = ''
+
+			textObj.text.split('').forEach(char => {
+				if (char === '✓') {
+					finalText += `${encodeXmlEntities(currentText)}</a:t></a:r>`
+					finalText += `<a:r>${genXmlTextRunProperties(greenText, false)}<a:t>✓</a:t></a:r>`
+					finalText += `<a:r>${genXmlTextRunProperties(textOptions, false)}<a:t>`
+					currentText = ''
+				} else {
+					currentText += (char || '').toString()
+				}
+			})
+
+			finalText += `${encodeXmlEntities(currentText)}</a:t></a:r>`
+
+			return finalText
+		} else {
+			return `<a:r>${genXmlTextRunProperties(textOptions, false)}<a:t>${encodeXmlEntities(textObj.text)}</a:t></a:r>`
 		}
 	}
 	return ''
@@ -1344,7 +1368,7 @@ export function makeXmlContTypes(slides: PresSlide[], slideLayouts: SlideLayout[
 	strXml += '<Default Extension="m4v" ContentType="video/mp4"/>' // NOTE: Hard-Code this extension as it wont be created in loop below (as extn !== type)
 	strXml += '<Default Extension="mp4" ContentType="video/mp4"/>' // NOTE: Hard-Code this extension as it wont be created in loop below (as extn !== type)
 	slides.forEach(slide => {
-		; (slide._relsMedia || []).forEach(rel => {
+		;(slide._relsMedia || []).forEach(rel => {
 			if (rel.type !== 'image' && rel.type !== 'online' && rel.type !== 'chart' && rel.extn !== 'm4v' && strXml.indexOf(rel.type) === -1) {
 				strXml += '<Default Extension="' + rel.extn + '" ContentType="' + rel.type + '"/>'
 			}
@@ -1380,9 +1404,9 @@ export function makeXmlContTypes(slides: PresSlide[], slideLayouts: SlideLayout[
 			'<Override PartName="/ppt/slideLayouts/slideLayout' +
 			(idx + 1) +
 			'.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/>'
-			; (layout._relsChart || []).forEach(rel => {
-				strXml += ' <Override PartName="' + rel.Target + '" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/>'
-			})
+		;(layout._relsChart || []).forEach(rel => {
+			strXml += ' <Override PartName="' + rel.Target + '" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/>'
+		})
 	})
 
 	// STEP 5: Add notes slide(s)

@@ -831,7 +831,7 @@ var PptxGenJS = (function (JSZip) {
 	    if (cell.text && cell.text.toString().trim().length === 0)
 	        return [' '];
 	    // B: Remove leading/trailing spaces
-	    var inStr = (cell.text || '').toString().trim();
+	    var inStr = (cell.text || '').toString().trimEnd();
 	    // C: Build line array
 	    inStr.split('\n').forEach(function (line) {
 	        line.split(' ').forEach(function (word) {
@@ -845,12 +845,19 @@ var PptxGenJS = (function (JSZip) {
 	            }
 	        });
 	        // All words for this line have been exhausted, flush buffer to new line, clear line var
+	        // AM: Avoid trimming the start for epics and features as we need to preserve indents
 	        if (strCurrLine)
-	            arrLines.push(strCurrLine.trim() + CRLF);
+	            arrLines.push(strCurrLine.trimEnd() + CRLF);
 	        strCurrLine = '';
 	    });
+	    var lastEntry = arrLines[arrLines.length - 1];
 	    // D: Remove trailing linebreak
-	    arrLines[arrLines.length - 1] = arrLines[arrLines.length - 1].trim();
+	    if (lastEntry.indexOf('✓') === -1 && lastEntry.indexOf('☐') === -1) {
+	        arrLines[arrLines.length - 1] = lastEntry.trim();
+	    }
+	    else {
+	        arrLines[arrLines.length - 1] = lastEntry.trimEnd();
+	    }
 	    return arrLines;
 	}
 	/**
@@ -867,7 +874,7 @@ var PptxGenJS = (function (JSZip) {
 	    var arrInchMargins = DEF_SLIDE_MARGIN_IN, emuTabCurrH = 0, emuSlideTabW = EMU * 1, emuSlideTabH = EMU * 1, numCols = 0, tableRowSlides = [
 	        {
 	            rows: [],
-	            finalTableH: 0
+	            finalTableH: 0,
 	        },
 	    ];
 	    if (tabOpts.verbose) {
@@ -1055,7 +1062,7 @@ var PptxGenJS = (function (JSZip) {
 	                // 1: Add a new slide
 	                tableRowSlides.push({
 	                    rows: [],
-	                    finalTableH: 0
+	                    finalTableH: 0,
 	                });
 	                // 2: Reset current table height for new Slide
 	                emuTabCurrH = 0; // This row's emuRowH w/b added below
@@ -2236,24 +2243,36 @@ var PptxGenJS = (function (JSZip) {
 	    */
 	    // Return paragraph with text run
 	    if (textObj.text) {
+	        var textOptions_1 = Object.assign({}, textObj.options);
+	        // Make Epic rows bold
+	        if (/E\d+:/.test(textObj.text) && (textObj.text.indexOf('✓') > -1 || textObj.text.indexOf('☐') > -1)) {
+	            textOptions_1.bold = true;
+	        }
+	        // Checkmarks need to be green and bold, so iterate through the string and add extra styles
+	        // when a checkmark is encountered
+	        // We need to do this manually because cell level formatting isn't compatible with autopaging
 	        if (textObj.text.indexOf('✓') > -1) {
-	            var strs = textObj.text.split('✓');
-	            if (strs.length) {
-	                var finalText = '';
-	                // If first char is checkmark, skip
-	                var i = strs[0] ? 0 : 1;
-	                var greenText = Object.assign({}, textObj.options);
-	                greenText.color = '56b418';
-	                greenText.bold = true;
-	                for (i; i < strs.length; i++) {
-	                    finalText += "<a:r>" + genXmlTextRunProperties(greenText, false) + "<a:t>" + encodeXmlEntities('✓') + "</a:t></a:r>";
-	                    finalText += "<a:r>" + genXmlTextRunProperties(textObj.options, false) + "<a:t>" + encodeXmlEntities(strs[i]) + "</a:t></a:r>";
+	            var greenText_1 = Object.assign({}, textObj.options);
+	            greenText_1.color = '56b418';
+	            greenText_1.bold = true;
+	            var finalText_1 = "<a:r>" + genXmlTextRunProperties(textOptions_1, false) + "<a:t>";
+	            var currentText_1 = '';
+	            textObj.text.split('').forEach(function (char) {
+	                if (char === '✓') {
+	                    finalText_1 += encodeXmlEntities(currentText_1) + "</a:t></a:r>";
+	                    finalText_1 += "<a:r>" + genXmlTextRunProperties(greenText_1, false) + "<a:t>\u2713</a:t></a:r>";
+	                    finalText_1 += "<a:r>" + genXmlTextRunProperties(textOptions_1, false) + "<a:t>";
+	                    currentText_1 = '';
 	                }
-	                return finalText;
-	            }
+	                else {
+	                    currentText_1 += (char || '').toString();
+	                }
+	            });
+	            finalText_1 += encodeXmlEntities(currentText_1) + "</a:t></a:r>";
+	            return finalText_1;
 	        }
 	        else {
-	            return "<a:r>" + genXmlTextRunProperties(textObj.options, false) + "<a:t>" + encodeXmlEntities(textObj.text) + "</a:t></a:r>";
+	            return "<a:r>" + genXmlTextRunProperties(textOptions_1, false) + "<a:t>" + encodeXmlEntities(textObj.text) + "</a:t></a:r>";
 	        }
 	    }
 	    return '';
@@ -6608,7 +6627,7 @@ var PptxGenJS = (function (JSZip) {
 	            slideId: this.slides.length + 256,
 	            slideRId: this.slides.length + 2,
 	            slideNumber: this.slides.length + 1,
-	            slideLayout: slideLayout
+	            slideLayout: slideLayout,
 	        });
 	        // A: Add slide to pres
 	        this._slides.push(newSlide);
