@@ -2245,8 +2245,10 @@ var PptxGenJS = (function (JSZip) {
 	    if (textObj.text) {
 	        var textOptions_1 = Object.assign({}, textObj.options);
 	        // Make Epic rows bold
-	        if (/E\d+:/.test(textObj.text) && (textObj.text.indexOf('✓') > -1 || textObj.text.indexOf('☐') > -1)) {
+	        // isEpicRow is a hack to identify Epic text that needs to be bolded
+	        if (textObj.text.indexOf('isEpicRow') === 0 && (textObj.text.indexOf('✓') > -1 || textObj.text.indexOf('☐') > -1)) {
 	            textOptions_1.bold = true;
+	            textObj.text = textObj.text.slice(9);
 	        }
 	        // Checkmarks need to be green and bold, so iterate through the string and add extra styles
 	        // when a checkmark is encountered
@@ -6627,7 +6629,7 @@ var PptxGenJS = (function (JSZip) {
 	            slideId: this.slides.length + 256,
 	            slideRId: this.slides.length + 2,
 	            slideNumber: this.slides.length + 1,
-	            slideLayout: slideLayout,
+	            slideLayout: slideLayout
 	        });
 	        // A: Add slide to pres
 	        this._slides.push(newSlide);
