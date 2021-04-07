@@ -2427,10 +2427,12 @@ function genXmlTextBody(slideObj) {
         }
         // C: If text string has line-breaks, then create a separate text-object for each (much easier than dealing with split inside a loop below)
         // NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
-        if (itext.text.indexOf(CRLF) > -1 && itext.text.match(/\n$/g) === null) {
+        if (itext.text.indexOf(CRLF) > -1) {
             itext.text.split(CRLF).forEach(function (line) {
                 itext.options.breakLine = true;
-                arrTextObjects.push({ text: line, options: itext.options });
+                if (line && line.length && line !== '\n' && line !== CRLF) {
+                    arrTextObjects.push({ text: line, options: itext.options });
+                }
             });
         }
         else {
