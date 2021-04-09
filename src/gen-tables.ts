@@ -27,18 +27,30 @@ function parseTextToLines(cell: TableCell, colWidth: number): string[] {
 
 	// C: Build line array
 	inStr.split('\n').forEach(line => {
+		let isEpicRow = false
+
+		// isEpicRow is a hack to identify which text within the cell is related to an epic
+		// and therefore must be made bold before exporting. Can't use word-level formatting
+		// because we're using auto-page
+		if (line.indexOf('isEpicRow') === 0) {
+			isEpicRow = true
+			line = line.slice(9)
+		}
 		line.split(' ').forEach(word => {
 			if (strCurrLine.length + word.length + 1 < CPL) {
 				strCurrLine += word + ' '
 			} else {
-				if (strCurrLine) arrLines.push(strCurrLine)
+				if (strCurrLine) {
+					strCurrLine = `${isEpicRow ? 'isEpicRow' : ''}${strCurrLine}`
+					arrLines.push(strCurrLine)
+				}
 				strCurrLine = word + ' '
 			}
 		})
 
 		// All words for this line have been exhausted, flush buffer to new line, clear line var
 		// AM: Avoid trimming the start for epics and features as we need to preserve indents
-		if (strCurrLine) arrLines.push(strCurrLine.trimEnd() + CRLF)
+		if (strCurrLine) arrLines.push(`${isEpicRow ? 'isEpicRow' : ''}${strCurrLine.trimEnd()}${CRLF}`)
 		strCurrLine = ''
 	})
 

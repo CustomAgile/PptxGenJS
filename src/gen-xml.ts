@@ -1030,7 +1030,7 @@ function genXmlTextRun(textObj: TextProps): string {
 
 		// Make Epic rows bold
 		// isEpicRow is a hack to identify Epic text that needs to be bolded
-		if (textObj.text.indexOf('isEpicRow') === 0 && (textObj.text.indexOf('✓') > -1 || textObj.text.indexOf('☐') > -1)) {
+		if (textObj.text.indexOf('isEpicRow') === 0) {
 			textOptions.bold = true
 			textObj.text = textObj.text.slice(9)
 		}
